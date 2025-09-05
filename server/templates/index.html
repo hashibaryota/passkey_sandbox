@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Passkey Local Example</title>
+    <style>
+        body { font-family: sans-serif; line-height: 1.6; padding: 20px; }
+        input { padding: 8px; margin-right: 10px; }
+        button { padding: 8px 12px; }
+        pre { background-color: #f4f4f4; padding: 15px; border-radius: 5px; white-space: pre-wrap; word-wrap: break-word; }
+    </style>
+</head>
+<body>
+    <h1>パスキー (WebAuthn) ローカル検証</h1>
+
+    <div>
+        <input type="text" id="username" placeholder="ユーザー名を入力">
+        <button id="registerBtn">登録 (Register)</button>
+        <button id="loginBtn">ログイン (Login)</button>
+    </div>
+
+    <h3>ログ出力:</h3>
+    <pre id="log"></pre>
+
+    <script src="app.js"></script>
+</body>
+</html>
