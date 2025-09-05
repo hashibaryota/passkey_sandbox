@@ -6,17 +6,18 @@ import (
 
 	"github.com/go-webauthn/webauthn/webauthn"
 
+	"passkey_sandbox/internal/config"
 	"passkey_sandbox/internal/handlers"
 	"passkey_sandbox/internal/storage"
 )
 
 func main() {
-	// WebAuthn設定
-	webAuthnConfig := &webauthn.Config{
-		RPDisplayName: "Go WebAuthn Example",             // Relying Party Name
-		RPID:          "localhost",                       // Relying Party ID (ドメイン)
-		RPOrigins:     []string{"http://localhost:8080"}, // 許可するオリジン
-	}
+	// WebAuthn設定（設定ファイルから取得）
+	// 用途に応じて以下から選択:
+	// config.NewWebAuthnConfig()                           // デフォルト設定
+	config.NewWebAuthnConfigWithOptions(config.GetPasskeyOptimizedOptions()) // Passkey最適化
+	// config.NewWebAuthnConfigWithOptions(config.GetCompatibilityOptions())    // 互換性重視
+	webAuthnConfig := config.NewWebAuthnConfig()
 
 	w, err := webauthn.New(webAuthnConfig)
 	if err != nil {
