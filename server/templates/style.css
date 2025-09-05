@@ -1,0 +1,100 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body { 
+    font-family: sans-serif; 
+    line-height: 1.6; 
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+}
+
+h1 {
+    margin-bottom: 20px;
+    flex-shrink: 0;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.controls {
+    flex-shrink: 0;
+    margin-bottom: 20px;
+}
+
+.controls > div {
+    margin-bottom: 10px;
+}
+
+input { 
+    padding: 8px; 
+    margin-right: 10px; 
+}
+
+button { 
+    padding: 8px 12px; 
+}
+
+.log-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0; /* flexアイテムの縮小を許可 */
+}
+
+h3 {
+    margin-bottom: 10px;
+    flex-shrink: 0;
+}
+
+pre { 
+    background-color: #f4f4f4; 
+    padding: 15px; 
+    border-radius: 5px; 
+    white-space: pre-wrap; 
+    word-wrap: break-word;
+    /* 残りの画面領域全体を使用 */
+    flex: 1;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    font-size: 12px;
+    line-height: 1.4;
+    /* スムーズなスクロール */
+    scroll-behavior: smooth;
+}
+
+/* スクロールバーのスタイリング */
+pre::-webkit-scrollbar {
+    width: 8px;
+}
+
+pre::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+pre::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+pre::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* モバイル対応 */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+    pre {
+        font-size: 11px;
+    }
+}

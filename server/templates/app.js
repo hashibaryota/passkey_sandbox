@@ -2,29 +2,22 @@
 // Passkey WebAuthn Client-side Implementation
 // -----------------------------------------------------------------------------
 
-// -----------------------------------------------------------------------------
-// 1. DOM要素の取得とイベントリスナーの設定
-// -----------------------------------------------------------------------------
-const usernameInput = document.getElementById('username');
-const registerBtn = document.getElementById('registerBtn');
-const loginBtn = document.getElementById('loginBtn');
-const clearLogBtn = document.getElementById('clearLogBtn');
-const logOutput = document.getElementById('log');
-
-registerBtn.addEventListener('click', handleRegister);
-loginBtn.addEventListener('click', handleLogin);
-clearLogBtn.addEventListener('click', clearLog);
-
 // ログ出力用ヘルパー
 function logMessage(message) {
     console.log(message);
     const now = new Date().toLocaleTimeString();
+    const logOutput = document.getElementById('log');
     logOutput.textContent += `[${now}] ${message}\n\n`;
+    
+    // 新しいログが追加されたら自動的に一番下にスクロール
+    logOutput.scrollTop = logOutput.scrollHeight;
 }
 
 // ログクリア用ヘルパー
 function clearLog() {
+    const logOutput = document.getElementById('log');
     logOutput.textContent = '';
+    logOutput.scrollTop = 0; // スクロール位置をリセット
     console.clear();
     logMessage('ログがクリアされました');
 }
@@ -83,10 +76,10 @@ function parseAuthenticatorData(authData) {
 // -----------------------------------------------------------------------------
 // 3. 登録処理 (Registration)
 // -----------------------------------------------------------------------------
-async function handleRegister() {
-    const username = usernameInput.value;
+async function register() {
+    const username = document.getElementById('username').value;
     if (!username) {
-        logMessage("Error: ユーザー名を入力してください。");
+        logMessage("エラー: ユーザー名を入力してください。");
         return;
     }
 
@@ -195,10 +188,10 @@ async function handleRegister() {
 // -----------------------------------------------------------------------------
 // 4. ログイン処理 (Authentication)
 // -----------------------------------------------------------------------------
-async function handleLogin() {
-    const username = usernameInput.value;
+async function authenticate() {
+    const username = document.getElementById('username').value;
     if (!username) {
-        logMessage("Error: ユーザー名を入力してください。");
+        logMessage("エラー: ユーザー名を入力してください。");
         return;
     }
 

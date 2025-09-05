@@ -3,28 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <title>Passkey Local Example</title>
-    <style>
-        body { font-family: sans-serif; line-height: 1.6; padding: 20px; }
-        input { padding: 8px; margin-right: 10px; }
-        button { padding: 8px 12px; }
-        pre { background-color: #f4f4f4; padding: 15px; border-radius: 5px; white-space: pre-wrap; word-wrap: break-word; }
-    </style>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    <h1>パスキー (WebAuthn) ローカル検証</h1>
-
-    <div>
-        <input type="text" id="username" placeholder="ユーザー名を入力">
-        <button id="registerBtn">登録 (Register)</button>
-        <button id="loginBtn">ログイン (Login)</button>
+    <h1>パスキー（WebAuthn）ローカル検証</h1>
+    
+    <div class="container">
+        <div class="controls">
+            <div>
+                <input type="text" id="username" placeholder="ユーザー名" />
+                <button onclick="register()">登録</button>
+                <button onclick="authenticate()">認証</button>
+            </div>
+        </div>
+        
+        <div class="log-container">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h3 style="margin: 0;">ログ出力:</h3>
+                <button onclick="clearLog()" style="padding: 4px 8px; font-size: 12px;">ログクリア</button>
+            </div>
+            <pre id="log"></pre>
+        </div>
     </div>
-
-    <h3>ログ出力:</h3>
-    <div style="margin-bottom: 10px;">
-        <button id="clearLogBtn" style="background-color: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 3px; cursor: pointer;">ログをクリア</button>
-    </div>
-    <pre id="log"></pre>
-
-    <script src="app.js"></script>
+    
+    <script src="/static/app.js"></script>
 </body>
 </html>
