@@ -8,16 +8,25 @@
 const usernameInput = document.getElementById('username');
 const registerBtn = document.getElementById('registerBtn');
 const loginBtn = document.getElementById('loginBtn');
+const clearLogBtn = document.getElementById('clearLogBtn');
 const logOutput = document.getElementById('log');
 
 registerBtn.addEventListener('click', handleRegister);
 loginBtn.addEventListener('click', handleLogin);
+clearLogBtn.addEventListener('click', clearLog);
 
 // ログ出力用ヘルパー
 function logMessage(message) {
     console.log(message);
     const now = new Date().toLocaleTimeString();
     logOutput.textContent += `[${now}] ${message}\n\n`;
+}
+
+// ログクリア用ヘルパー
+function clearLog() {
+    logOutput.textContent = '';
+    console.clear();
+    logMessage('ログがクリアされました');
 }
 
 // -----------------------------------------------------------------------------
@@ -67,17 +76,39 @@ async function handleRegister() {
         logMessage(`Options: ${JSON.stringify(options, null, 2)}`);
 
         // Step 2: サーバーから受け取ったデータをWebAuthn APIが扱える形式に変換
-        options.challenge = base64urlToBuffer(options.challenge);
-        options.user.id = base64urlToBuffer(options.user.id);
-        if (options.excludeCredentials) {
-            options.excludeCredentials.forEach(c => {
-                c.id = base64urlToBuffer(c.id);
+        // デバッグ: オプションの構造を確認
+        logMessage(`Options構造確認: challenge=${typeof options.challenge}, publicKey=${typeof options.publicKey}`);
+        
+        // WebAuthnライブラリは通常 { publicKey: {...} } 構造で返すため、適切にアクセス
+        let publicKeyOptions;
+        if (options.publicKey) {
+            // 標準的な構造の場合
+            publicKeyOptions = options.publicKey;
+        } else {
+            // 直接publicKeyオプションが返された場合
+            publicKeyOptions = options;
+        }
+        
+        logMessage(`PublicKey options: ${JSON.stringify(publicKeyOptions, null, 2)}`);
+        
+        // Base64URL デコード処理
+        if (publicKeyOptions.challenge) {
+            publicKeyOptions.challenge = base64urlToBuffer(publicKeyOptions.challenge);
+        }
+        if (publicKeyOptions.user && publicKeyOptions.user.id) {
+            publicKeyOptions.user.id = base64urlToBuffer(publicKeyOptions.user.id);
+        }
+        if (publicKeyOptions.excludeCredentials) {
+            publicKeyOptions.excludeCredentials.forEach(c => {
+                if (c.id) {
+                    c.id = base64urlToBuffer(c.id);
+                }
             });
         }
 
         // Step 3: WebAuthn APIを呼び出し、認証器にクレデンシャル作成を依頼
         logMessage("[CLIENT-REGISTER-3] navigator.credentials.create() を呼び出し...");
-        const credential = await navigator.credentials.create({ publicKey: options });
+        const credential = await navigator.credentials.create({ publicKey: publicKeyOptions });
         logMessage("[CLIENT-REGISTER-4] クレデンシャル作成成功。");
 
         // Step 4: 作成されたクレデンシャルをサーバーが検証できる形式に変換
@@ -140,16 +171,36 @@ async function handleLogin() {
         logMessage(`Options: ${JSON.stringify(options, null, 2)}`);
         
         // Step 2: データをWebAuthn APIが扱える形式に変換
-        options.challenge = base64urlToBuffer(options.challenge);
-        if (options.allowCredentials) {
-            options.allowCredentials.forEach(c => {
-                c.id = base64urlToBuffer(c.id);
+        // デバッグ: オプションの構造を確認
+        logMessage(`Login Options構造確認: challenge=${typeof options.challenge}, publicKey=${typeof options.publicKey}`);
+        
+        // WebAuthnライブラリは通常 { publicKey: {...} } 構造で返すため、適切にアクセス
+        let publicKeyOptions;
+        if (options.publicKey) {
+            // 標準的な構造の場合
+            publicKeyOptions = options.publicKey;
+        } else {
+            // 直接publicKeyオプションが返された場合
+            publicKeyOptions = options;
+        }
+        
+        logMessage(`Login PublicKey options: ${JSON.stringify(publicKeyOptions, null, 2)}`);
+        
+        // Base64URL デコード処理
+        if (publicKeyOptions.challenge) {
+            publicKeyOptions.challenge = base64urlToBuffer(publicKeyOptions.challenge);
+        }
+        if (publicKeyOptions.allowCredentials) {
+            publicKeyOptions.allowCredentials.forEach(c => {
+                if (c.id) {
+                    c.id = base64urlToBuffer(c.id);
+                }
             });
         }
 
         // Step 3: WebAuthn APIを呼び出し、認証器に署名作成を依頼
         logMessage("[CLIENT-LOGIN-3] navigator.credentials.get() を呼び出し...");
-        const assertion = await navigator.credentials.get({ publicKey: options });
+        const assertion = await navigator.credentials.get({ publicKey: publicKeyOptions });
         logMessage("[CLIENT-LOGIN-4] 署名アサーション取得成功。");
 
         // Step 4: 作成された署名をサーバーが検証できる形式に変換
