@@ -33,7 +33,7 @@ func main() {
 
 	// 静的ファイル（JS、CSS等）を提供
 	fs := http.FileServer(http.Dir("templates/"))
-	http.Handle("/app.js", http.StripPrefix("/", fs))
+	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
 	http.HandleFunc("/register/begin", webauthnHandlers.BeginRegistration)
 	http.HandleFunc("/register/finish", webauthnHandlers.FinishRegistration)
