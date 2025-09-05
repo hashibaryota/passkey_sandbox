@@ -12,15 +12,17 @@
         <div class="controls">
             <div>
                 <input type="text" id="username" placeholder="ユーザー名" />
-                <button onclick="register()">登録</button>
-                <button onclick="authenticate()">認証</button>
+                <div class="button-group">
+                    <button onclick="register()" class="register-btn">登録</button>
+                    <button onclick="authenticate()" class="auth-btn">認証</button>
+                </div>
             </div>
         </div>
         
         <div class="log-container">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                 <h3 style="margin: 0;">ログ出力:</h3>
-                <button onclick="clearLog()" style="padding: 4px 8px; font-size: 12px;">ログクリア</button>
+                <button onclick="clearLog()" class="clear-btn">ログクリア</button>
             </div>
             <pre id="log"></pre>
         </div>

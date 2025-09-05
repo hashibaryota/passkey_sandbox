@@ -27,19 +27,136 @@ h1 {
 .controls {
     flex-shrink: 0;
     margin-bottom: 20px;
+    display: flex;
+    justify-content: center; /* 中央揃え */
 }
 
 .controls > div {
     margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* 子要素を中央揃え */
+    gap: 12px; /* 要素間のスペース */
+}
+
+.button-group {
+    display: flex;
+    gap: 12px; /* ボタン間のスペース */
+    justify-content: center;
 }
 
 input { 
-    padding: 8px; 
-    margin-right: 10px; 
+    padding: 10px 12px; 
+    margin-right: 0; /* 中央揃えのためマージンを削除 */
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    background-color: #fff;
+    transition: border-color 0.2s ease;
+    width: 250px; /* 固定幅を設定 */
 }
 
+input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+/* 基本ボタンスタイル */
 button { 
-    padding: 8px 12px; 
+    padding: 12px 24px; 
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-right: 0; /* gapを使用するためマージンを削除 */
+    min-width: 120px; /* 最小幅を設定 */
+}
+
+/* 登録ボタン（プライマリーアクション） */
+.register-btn {
+    background-color: #007bff;
+    color: white;
+}
+
+.register-btn:hover {
+    background-color: #0056b3;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+}
+
+.register-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 4px rgba(0, 123, 255, 0.3);
+}
+
+/* 認証ボタン（成功アクション） */
+.auth-btn {
+    background-color: #28a745;
+    color: white;
+}
+
+.auth-btn:hover {
+    background-color: #1e7e34;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+}
+
+.auth-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 4px rgba(40, 167, 69, 0.3);
+}
+
+/* 従来のボタンスタイル（後方互換性） */
+button:not(.clear-btn):not(.register-btn):not(.auth-btn) {
+    background-color: #007bff;
+    color: white;
+}
+
+button:not(.clear-btn):not(.register-btn):not(.auth-btn):hover {
+    background-color: #0056b3;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+}
+
+button:not(.clear-btn):not(.register-btn):not(.auth-btn):active {
+    transform: translateY(0);
+    box-shadow: 0 1px 4px rgba(0, 123, 255, 0.3);
+}
+
+/* ログクリアボタン（危険なアクション） */
+.clear-btn {
+    background-color: #dc3545;
+    color: white;
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+.clear-btn:hover {
+    background-color: #c82333;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+}
+
+.clear-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 4px rgba(220, 53, 69, 0.3);
+}
+
+/* ボタンが無効の場合 */
+button:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+button:disabled:hover {
+    background-color: #6c757d;
+    transform: none;
+    box-shadow: none;
 }
 
 .log-container {
@@ -87,14 +204,4 @@ pre::-webkit-scrollbar-thumb {
 
 pre::-webkit-scrollbar-thumb:hover {
     background: #a8a8a8;
-}
-
-/* モバイル対応 */
-@media (max-width: 768px) {
-    body {
-        padding: 10px;
-    }
-    pre {
-        font-size: 11px;
-    }
 }
