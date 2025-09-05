@@ -49,6 +49,37 @@ function bufferToBase64url(buffer) {
     return window.btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
 }
 
+// AuthenticatorData解析ヘルパー
+function parseAuthenticatorData(authData) {
+    const dataView = new DataView(authData.buffer || authData);
+    
+    // RP ID Hash (32 bytes)
+    const rpIdHash = new Uint8Array(authData.slice(0, 32));
+    
+    // Flags (1 byte)
+    const flags = dataView.getUint8(32);
+    const userPresent = !!(flags & 0x01);
+    const userVerified = !!(flags & 0x04);
+    const attestedCredentialData = !!(flags & 0x40);
+    const extensionData = !!(flags & 0x80);
+    
+    // Signature Counter (4 bytes)
+    const signCounter = dataView.getUint32(33, false); // big endian
+    
+    return {
+        rpIdHash: Array.from(rpIdHash).map(b => b.toString(16).padStart(2, '0')).join(''),
+        flags: {
+            userPresent,
+            userVerified,
+            attestedCredentialData,
+            extensionData,
+            raw: flags
+        },
+        signCounter,
+        totalLength: authData.byteLength
+    };
+}
+
 // -----------------------------------------------------------------------------
 // 3. 登録処理 (Registration)
 // -----------------------------------------------------------------------------
@@ -110,6 +141,23 @@ async function handleRegister() {
         logMessage("[CLIENT-REGISTER-3] navigator.credentials.create() を呼び出し...");
         const credential = await navigator.credentials.create({ publicKey: publicKeyOptions });
         logMessage("[CLIENT-REGISTER-4] クレデンシャル作成成功。");
+        
+        // navigator.credentials.create()のレスポンス詳細をログ出力
+        logMessage(`[CLIENT-REGISTER-4a] 生成されたクレデンシャルの詳細:`);
+        logMessage(`- ID: ${credential.id}`);
+        logMessage(`- Type: ${credential.type}`);
+        logMessage(`- RawID length: ${credential.rawId.byteLength} bytes`);
+        logMessage(`- AttestationObject length: ${credential.response.attestationObject.byteLength} bytes`);
+        logMessage(`- ClientDataJSON length: ${credential.response.clientDataJSON.byteLength} bytes`);
+        
+        // ClientDataJSONの内容を人間が読める形で表示
+        try {
+            const clientDataText = new TextDecoder().decode(credential.response.clientDataJSON);
+            const clientData = JSON.parse(clientDataText);
+            logMessage(`- ClientData内容: ${JSON.stringify(clientData, null, 2)}`);
+        } catch (e) {
+            logMessage(`- ClientData解析エラー: ${e.message}`);
+        }
 
         // Step 4: 作成されたクレデンシャルをサーバーが検証できる形式に変換
         const credentialForServer = {
@@ -202,6 +250,38 @@ async function handleLogin() {
         logMessage("[CLIENT-LOGIN-3] navigator.credentials.get() を呼び出し...");
         const assertion = await navigator.credentials.get({ publicKey: publicKeyOptions });
         logMessage("[CLIENT-LOGIN-4] 署名アサーション取得成功。");
+        
+        // navigator.credentials.get()のレスポンス詳細をログ出力
+        logMessage(`[CLIENT-LOGIN-4a] 取得されたアサーションの詳細:`);
+        logMessage(`- ID: ${assertion.id}`);
+        logMessage(`- Type: ${assertion.type}`);
+        logMessage(`- RawID length: ${assertion.rawId.byteLength} bytes`);
+        logMessage(`- AuthenticatorData length: ${assertion.response.authenticatorData.byteLength} bytes`);
+        logMessage(`- ClientDataJSON length: ${assertion.response.clientDataJSON.byteLength} bytes`);
+        logMessage(`- Signature length: ${assertion.response.signature.byteLength} bytes`);
+        logMessage(`- UserHandle: ${assertion.response.userHandle ? `${assertion.response.userHandle.byteLength} bytes` : 'null'}`);
+        
+        // ClientDataJSONの内容を人間が読める形で表示
+        try {
+            const clientDataText = new TextDecoder().decode(assertion.response.clientDataJSON);
+            const clientData = JSON.parse(clientDataText);
+            logMessage(`- ClientData内容: ${JSON.stringify(clientData, null, 2)}`);
+        } catch (e) {
+            logMessage(`- ClientData解析エラー: ${e.message}`);
+        }
+        
+        // AuthenticatorDataの解析結果を表示
+        try {
+            const authDataParsed = parseAuthenticatorData(assertion.response.authenticatorData);
+            logMessage(`- AuthenticatorData解析結果:`);
+            logMessage(`  * RP ID Hash: ${authDataParsed.rpIdHash}`);
+            logMessage(`  * User Present: ${authDataParsed.flags.userPresent}`);
+            logMessage(`  * User Verified: ${authDataParsed.flags.userVerified}`);
+            logMessage(`  * Signature Counter: ${authDataParsed.signCounter}`);
+            logMessage(`  * Flags (raw): 0x${authDataParsed.flags.raw.toString(16).padStart(2, '0')}`);
+        } catch (e) {
+            logMessage(`- AuthenticatorData解析エラー: ${e.message}`);
+        }
 
         // Step 4: 作成された署名をサーバーが検証できる形式に変換
         const assertionForServer = {
