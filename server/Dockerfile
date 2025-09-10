@@ -1,23 +1,24 @@
 # ビルドステージ
-FROM golang:1.23-alpine AS builder
+FROM public.ecr.aws/docker/library/golang:1.25.1-alpine3.22 AS builder
 
-WORKDIR /app
+WORKDIR /src
 
-COPY go.mod go.sum ./
-RUN go mod download
+RUN --mount=type=cache,target=/go/pkg/mod/,sharing=locked \
+    --mount=type=bind,source=go.sum,target=go.sum \
+    --mount=type=bind,source=go.mod,target=go.mod \
+    go mod download -x
 
-COPY . .
-RUN CGO_ENABLED=0 GOOS=linux go build -o /main .
+RUN --mount=type=cache,target=/go/pkg/mod/ \
+    --mount=type=bind,target=. \
+    CGO_ENABLED=0 GOOS=linux go build -o /app/server .
 
 # 実行ステージ
-FROM alpine:latest
+FROM gcr.io/distroless/static:nonroot
 
 WORKDIR /app
 
-# ビルドステージから実行ファイルとテンプレートをコピー
-COPY --from=builder /main .
-COPY --from=builder /app/templates ./templates/
+# 実行ファイルとテンプレートをコピー
+COPY --from=builder /app/server .
+COPY ./templates/ ./templates/
 
-EXPOSE 8080
-
-CMD ["/app/main"]
+CMD ["/app/server"]
