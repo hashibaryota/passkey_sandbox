@@ -1,6 +1,7 @@
 package config
 
 import (
+	"github.com/go-webauthn/webauthn/metadata/providers/cached"
 	"github.com/go-webauthn/webauthn/protocol"
 	"github.com/go-webauthn/webauthn/webauthn"
 )
@@ -30,10 +31,11 @@ type WebAuthnConfigOptions struct {
 	ResidentKey             protocol.ResidentKeyRequirement
 	RequireResidentKey      *bool
 	UserVerification        protocol.UserVerificationRequirement
+	MDSProviderOptions      []cached.Option
 }
 
 // NewWebAuthnConfigWithOptions カスタムオプションでWebAuthn設定を生成
-func NewWebAuthnConfigWithOptions(opts WebAuthnConfigOptions) *webauthn.Config {
+func NewWebAuthnConfigWithOptions(opts WebAuthnConfigOptions) (*webauthn.Config, error) {
 	config := &webauthn.Config{
 		RPDisplayName: opts.RPDisplayName,
 		RPID:          opts.RPID,
@@ -60,8 +62,13 @@ func NewWebAuthnConfigWithOptions(opts WebAuthnConfigOptions) *webauthn.Config {
 		}
 	}
 
+	var err error
+	if config.MDS, err = cached.New(opts.MDSProviderOptions...); err != nil {
+		return nil, err
+	}
+
 	config.AuthenticatorSelection = authenticatorSelection
-	return config
+	return config, nil
 }
 
 // GetDefaultWebAuthnOptions デフォルトの設定オプションを取得
@@ -74,6 +81,10 @@ func GetDefaultWebAuthnOptions() WebAuthnConfigOptions {
 		ResidentKey:             protocol.ResidentKeyRequirementPreferred,
 		RequireResidentKey:      protocol.ResidentKeyNotRequired(),
 		UserVerification:        protocol.VerificationPreferred,
+		MDSProviderOptions: []cached.Option{
+			// MDSキャッシュファイルのパスを指定
+			cached.WithPath(".cache/fidoalliance_mds.jwt"),
+		},
 	}
 }
 
@@ -87,6 +98,9 @@ func GetPasskeyOptimizedOptions() WebAuthnConfigOptions {
 		ResidentKey:             protocol.ResidentKeyRequirementRequired,
 		RequireResidentKey:      protocol.ResidentKeyRequired(),
 		UserVerification:        protocol.VerificationRequired,
+		MDSProviderOptions: []cached.Option{
+			cached.WithPath(".cache/fidoalliance_mds.jwt"),
+		},
 	}
 }
 
@@ -100,5 +114,8 @@ func GetCompatibilityOptions() WebAuthnConfigOptions {
 		ResidentKey:             protocol.ResidentKeyRequirementPreferred,
 		RequireResidentKey:      protocol.ResidentKeyNotRequired(),
 		UserVerification:        protocol.VerificationPreferred,
+		MDSProviderOptions: []cached.Option{
+			cached.WithPath(".cache/fidoalliance_mds.jwt"),
+		},
 	}
 }

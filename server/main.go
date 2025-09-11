@@ -15,9 +15,11 @@ func main() {
 	// WebAuthn設定（設定ファイルから取得）
 	// 用途に応じて以下から選択:
 	// config.NewWebAuthnConfig()                           // デフォルト設定
-	config.NewWebAuthnConfigWithOptions(config.GetPasskeyOptimizedOptions()) // Passkey最適化
 	// config.NewWebAuthnConfigWithOptions(config.GetCompatibilityOptions())    // 互換性重視
-	webAuthnConfig := config.NewWebAuthnConfig()
+	webAuthnConfig, err := config.NewWebAuthnConfigWithOptions(config.GetPasskeyOptimizedOptions()) // Passkey最適化
+	if err != nil {
+		log.Fatalf("Failed to create WebAuthn config: %v", err)
+	}
 
 	w, err := webauthn.New(webAuthnConfig)
 	if err != nil {
